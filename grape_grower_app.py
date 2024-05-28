@@ -12,9 +12,6 @@ dtm_file_path = r'./data/raw_dtm_merge_10m.tiff'
 slp_file_path = r'./data/slope_dtm_merge_10m_resample.tif'
 asp_file_path = r'./data/aspect_dtm_merge_10m_resample.tif'
 
-# define crs for raster datasets, used in each process_ function
-#crs = rasterio.crs.CRS({"init": "epsg:2180"})
-
 st.title('Grape grower')
 
 ########################################################################################
@@ -37,9 +34,9 @@ st.markdown('#### Ideal Aspect')
 st.write('(Could allow to put another _ok aspect_ option later)')
 st.write('Aspect is in compass degrees where 0 is North, 180 is South')
 min_ideal_asp = st.slider('Select min ideal aspect (degrees)', min_value=0, max_value=360, 
-                          value=160, step=1) 
+                          value=170, step=1) 
 max_ideal_asp = st.slider('Select max ideal aspect (degrees)', min_value=0, max_value=360, 
-                          value=220, step=1)
+                          value=190, step=1)
 
 
 ########################################################################################
@@ -114,11 +111,12 @@ def process_aspect():
 
 # run the processing functions
 dtm_select = process_dtm()
-st.write(dtm_select.shape)
+st.write(f'Processed DTM selection giving {dtm_select.shape[0]} features')
 slp_select = process_slp()
-st.write(slp_select.shape)
+st.write(f'Processed slope selection giving {slp_select.shape[0]} features')
 asp_select = process_aspect()
-st.write(asp_select.shape)
+st.write(f'Processed aspect selection giving {asp_select.shape[0]} features')
+
 
 #############################################################################
 # Create a Folium map
@@ -132,10 +130,44 @@ orange = {'fillColor': '#ff9302', 'color': '#ff9302'}
 pink = {'fillColor': '#fc417c', 'color': '#fc417c'}
 green = {'fillColor': '#5dd4a2', 'color': '#5dd4a2'}
 
-# Add the areas below the threshold to the map
-folium.GeoJson(dtm_select, name='DTM selection', style_function=lambda x:orange).add_to(m)
-folium.GeoJson(slp_select, name='Slope selection', style_function=lambda x:pink).add_to(m)
-folium.GeoJson(asp_select, name='Ideal Aspect', style_function=lambda x:green).add_to(m)
+col1, col2, col3 = st.columns(3)
+
+with col1:
+    if 'dtm_to_map' not in st.session_state:
+        st.session_state.dtm_to_map = False
+    def click_button():
+        st.session_state.dtm_to_map = True
+
+    st.button('Add DTM to map?', on_click=click_button)
+
+    if st.session_state.dtm_to_map:
+        st.write('Added DTM layer...')
+        folium.GeoJson(dtm_select, name='DTM selection', style_function=lambda x:orange).add_to(m)
+
+with col2:
+    if 'slp_to_map' not in st.session_state:
+        st.session_state.slp_to_map = False
+    def click_button():
+        st.session_state.slp_to_map = True
+
+    st.button('Add Slope to map?', on_click=click_button)
+
+    if st.session_state.slp_to_map:
+        st.write('Added slope layer...')
+        folium.GeoJson(slp_select, name='Slope selection', style_function=lambda x:pink).add_to(m)
+
+with col3:
+    if 'asp_to_map' not in st.session_state:
+        st.session_state.asp_to_map = False
+    def click_button():
+        st.session_state.asp_to_map = True
+
+    st.button('Add Aspect to map?', on_click=click_button)
+
+    if st.session_state.asp_to_map:
+        st.write('Added aspect layer...')
+        folium.GeoJson(asp_select, name='Ideal Aspect', style_function=lambda x:green).add_to(m)
+
 folium.LayerControl().add_to(m)
 
 # Display the map in Streamlit
