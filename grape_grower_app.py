@@ -27,9 +27,9 @@ elevation_threshold = st.slider('Select max elevation (m)', min_value=0, max_val
 st.markdown('#### Slope')
 # add slope sliders for min and max
 min_slope = st.slider('Select min slope (degrees)', min_value=0, max_value=88, 
-                          value=20, step=1) 
+                          value=10, step=1) 
 max_slope = st.slider('Select max slope (degrees)', min_value=0, max_value=88, 
-                          value=20, step=1)
+                          value=15, step=1)
 st.markdown('#### Ideal Aspect')
 st.write('(Could allow to put another _ok aspect_ option later)')
 st.write('Aspect is in compass degrees where 0 is North, 180 is South')
