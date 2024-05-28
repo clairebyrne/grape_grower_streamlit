@@ -43,8 +43,10 @@ max_ideal_asp = st.slider('Select max ideal aspect (degrees)', min_value=0, max_
 # process dtm
 ########################################################################################
 # Read the DTM data from the .tiff file
-with rasterio.open(dtm_file_path) as src:
+crs = rasterio.crs.CRS({"init": "epsg:2180"})
+with rasterio.open(dtm_file_path, 'r+') as src:
     dtm = src.read(1)
+    dtm.crs= crs
     transform = src.transform
 
 # Create a mask for areas below the given elevation
@@ -63,6 +65,7 @@ dtm_select = gpd.GeoDataFrame(geometry=geometries, crs="EPSG:2180")
 # Read the slope data from the .tiff file
 with rasterio.open(slp_file_path) as src:
     slp = src.read(1)
+    slp.crs= crs
     transform = src.transform
 
 # Create a mask for areas within the selected slope range
@@ -81,6 +84,7 @@ slp_select = gpd.GeoDataFrame(geometry=geometries, crs="EPSG:2180")
 # Read the slope data from the .tiff file
 with rasterio.open(asp_file_path) as src:
     asp = src.read(1)
+    asp.crs= crs
     transform = src.transform
 
 # Create a mask for areas within the selected slope range
