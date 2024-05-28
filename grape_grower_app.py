@@ -63,7 +63,7 @@ dtm_select = gpd.GeoDataFrame(geometry=geometries, crs="EPSG:2180")
 # process slope
 ########################################################################################
 # Read the slope data from the .tiff file
-with rasterio.open(slp_file_path) as src:
+with rasterio.open(slp_file_path, 'r+') as src:
     src.crs= crs
     slp = src.read(1)
     transform = src.transform
@@ -82,7 +82,7 @@ slp_select = gpd.GeoDataFrame(geometry=geometries, crs="EPSG:2180")
 # process aspect
 ########################################################################################
 # Read the slope data from the .tiff file
-with rasterio.open(asp_file_path) as src:
+with rasterio.open(asp_file_path, 'r+') as src:
     src.crs= crs
     asp = src.read(1)
     transform = src.transform
