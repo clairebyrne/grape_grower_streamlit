@@ -22,21 +22,21 @@ st.markdown('## Selection Criteria')
 st.markdown('#### Elevation')
 # add elevation slider
 elevation_threshold = st.slider('Select max elevation (m)', min_value=0, max_value=1000, 
-                          value=400, step=50) 
+                          value=300, step=50) 
 
 st.markdown('#### Slope')
 # add slope sliders for min and max
 min_slope = st.slider('Select min slope (degrees)', min_value=0, max_value=88, 
-                          value=10, step=1) 
+                          value=25, step=1) 
 max_slope = st.slider('Select max slope (degrees)', min_value=0, max_value=88, 
-                          value=15, step=1)
+                          value=45, step=1)
 st.markdown('#### Ideal Aspect')
 st.write('(Could allow to put another _ok aspect_ option later)')
 st.write('Aspect is in compass degrees where 0 is North, 180 is South')
 min_ideal_asp = st.slider('Select min ideal aspect (degrees)', min_value=0, max_value=360, 
-                          value=170, step=1) 
+                          value=180, step=1) 
 max_ideal_asp = st.slider('Select max ideal aspect (degrees)', min_value=0, max_value=360, 
-                          value=190, step=1)
+                          value=220, step=1)
 
 
 ########################################################################################
