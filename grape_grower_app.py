@@ -45,8 +45,8 @@ max_ideal_asp = st.slider('Select max ideal aspect (degrees)', min_value=0, max_
 # Read the DTM data from the .tiff file
 crs = rasterio.crs.CRS({"init": "epsg:2180"})
 with rasterio.open(dtm_file_path, 'r+') as src:
+    src.crs= crs
     dtm = src.read(1)
-    dtm.crs= crs
     transform = src.transform
 
 # Create a mask for areas below the given elevation
