@@ -64,8 +64,8 @@ dtm_select = gpd.GeoDataFrame(geometry=geometries, crs="EPSG:2180")
 ########################################################################################
 # Read the slope data from the .tiff file
 with rasterio.open(slp_file_path) as src:
+    src.crs= crs
     slp = src.read(1)
-    slp.crs= crs
     transform = src.transform
 
 # Create a mask for areas within the selected slope range
@@ -83,8 +83,8 @@ slp_select = gpd.GeoDataFrame(geometry=geometries, crs="EPSG:2180")
 ########################################################################################
 # Read the slope data from the .tiff file
 with rasterio.open(asp_file_path) as src:
+    src.crs= crs
     asp = src.read(1)
-    asp.crs= crs
     transform = src.transform
 
 # Create a mask for areas within the selected slope range
