@@ -62,40 +62,40 @@ dtm_select = gpd.GeoDataFrame(geometry=geometries, crs="EPSG:2180")
 ########################################################################################
 # process slope
 ########################################################################################
-# Read the slope data from the .tiff file
-with rasterio.open(slp_file_path, 'r+') as src:
-    src.crs= crs
-    slp = src.read(1)
-    transform = src.transform
+# # Read the slope data from the .tiff file
+# with rasterio.open(slp_file_path, 'r+') as src:
+#     src.crs= crs
+#     slp = src.read(1)
+#     transform = src.transform
 
-# Create a mask for areas within the selected slope range
-within_slp_threshold = (slp >= min_slope) & (slp <= max_slope)
+# # Create a mask for areas within the selected slope range
+# within_slp_threshold = (slp >= min_slope) & (slp <= max_slope)
 
-# Get the shapes of areas within the threshold
-mask_shapes = shapes(within_slp_threshold.astype(np.uint8), transform=transform)
+# # Get the shapes of areas within the threshold
+# mask_shapes = shapes(within_slp_threshold.astype(np.uint8), transform=transform)
 
-# Convert shapes to a GeoDataFrame
-geometries = [shape(geom) for geom, value in mask_shapes if value == 1]
-slp_select = gpd.GeoDataFrame(geometry=geometries, crs="EPSG:2180")
+# # Convert shapes to a GeoDataFrame
+# geometries = [shape(geom) for geom, value in mask_shapes if value == 1]
+# slp_select = gpd.GeoDataFrame(geometry=geometries, crs="EPSG:2180")
 
-########################################################################################
-# process aspect
-########################################################################################
-# Read the slope data from the .tiff file
-with rasterio.open(asp_file_path, 'r+') as src:
-    src.crs= crs
-    asp = src.read(1)
-    transform = src.transform
+# ########################################################################################
+# # process aspect
+# ########################################################################################
+# # Read the slope data from the .tiff file
+# with rasterio.open(asp_file_path, 'r+') as src:
+#     src.crs= crs
+#     asp = src.read(1)
+#     transform = src.transform
 
-# Create a mask for areas within the selected slope range
-within_asp_threshold = (asp >= min_ideal_asp) & (slp <= max_ideal_asp)
+# # Create a mask for areas within the selected slope range
+# within_asp_threshold = (asp >= min_ideal_asp) & (slp <= max_ideal_asp)
 
-# Get the shapes of areas within the threshold
-mask_shapes = shapes(within_asp_threshold.astype(np.uint8), transform=transform)
+# # Get the shapes of areas within the threshold
+# mask_shapes = shapes(within_asp_threshold.astype(np.uint8), transform=transform)
 
-# Convert shapes to a GeoDataFrame
-geometries = [shape(geom) for geom, value in mask_shapes if value == 1]
-asp_select = gpd.GeoDataFrame(geometry=geometries, crs="EPSG:2180")
+# # Convert shapes to a GeoDataFrame
+# geometries = [shape(geom) for geom, value in mask_shapes if value == 1]
+# asp_select = gpd.GeoDataFrame(geometry=geometries, crs="EPSG:2180")
 
 
 #############################################################################
@@ -112,8 +112,8 @@ green = {'fillColor': '#5dd4a2', 'color': '#5dd4a2'}
 
 # Add the areas below the threshold to the map
 folium.GeoJson(dtm_select, name='DTM selection', style_function=lambda x:orange).add_to(m)
-folium.GeoJson(slp_select, name='Slope selection', style_function=lambda x:pink).add_to(m)
-folium.GeoJson(asp_select, name='Ideal Aspect', style_function=lambda x:green).add_to(m)
+# folium.GeoJson(slp_select, name='Slope selection', style_function=lambda x:pink).add_to(m)
+# folium.GeoJson(asp_select, name='Ideal Aspect', style_function=lambda x:green).add_to(m)
 folium.LayerControl().add_to(m)
 
 # Display the map in Streamlit
