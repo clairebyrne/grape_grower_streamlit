@@ -45,7 +45,7 @@ min_area = st.slider('Select minimum area (in hectares)', min_value=0.1, max_val
 ########################################################################################
 
 @st.cache_data
-def process_dtm():
+def process_dtm(elevation_threshold):
     # Read the DTM data from the .tiff file
     with rasterio.open(dtm_file_path, 'r+') as src:
         src.crs= rasterio.crs.CRS({"init": "epsg:2180"})
@@ -68,7 +68,7 @@ def process_dtm():
 ########################################################################################
 
 @st.cache_data
-def process_slp():
+def process_slp(min_slope, max_slope):
     # Read the slope data from the .tiff file
     with rasterio.open(slp_file_path, 'r+') as src:
         src.crs= rasterio.crs.CRS({"init": "epsg:2180"})
@@ -91,7 +91,7 @@ def process_slp():
 # ########################################################################################
 
 @st.cache_data
-def process_aspect():
+def process_aspect(min_ideal_asp, max_ideal_asp):
     # Read the slope data from the .tiff file
     with rasterio.open(asp_file_path, 'r+') as src:
         src.crs= rasterio.crs.CRS({"init": "epsg:2180"})
@@ -131,11 +131,11 @@ st.button('Click to run first analysis', on_click=click_button)
 
 if st.session_state.run_analysis:
             # run the processing functions
-            dtm_select = process_dtm()
+            dtm_select = process_dtm(elevation_threshold)
             st.write(f'Processed DTM selection giving {dtm_select.shape[0]} features')
-            slp_select = process_slp()
+            slp_select = process_slp(min_slope, max_slope)
             st.write(f'Processed slope selection giving {slp_select.shape[0]} features')
-            asp_select = process_aspect()
+            asp_select = process_aspect(min_ideal_asp, max_ideal_asp)
             st.write(f'Processed aspect selection giving {asp_select.shape[0]} features')
             all_criteria, all_criteria_small = all_criteria_met(dtm_select, slp_select, asp_select, min_area)
 
