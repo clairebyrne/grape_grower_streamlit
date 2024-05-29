@@ -146,13 +146,31 @@ if st.session_state.run_analysis:
 #############################################################################
 
 latitude, longitude = 50.9601, 15.9751  # Replace with appropriate values
-m = folium.Map(location=[latitude, longitude], zoom_start=10)
+m = folium.Map(location=[latitude, longitude], tiles='OpenStreetMap', zoom_start=10)
+folium.TileLayer('cartodbpositron').add_to(m)
+#folium.TileLayer('cartodbdark_matter').add_to(m)
+folium.TileLayer(
+        tiles = 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+        attr = 'Esri',
+        name = 'Esri Satellite',
+        overlay = False,
+        control = True
+       ).add_to(m)
+
 # criteria met styles
 blue = {'fillColor': '#021076', 'color': '#021076'}
 yellow = {'fillColor': '#eed959', 'color': '#eed959'}
 
-folium.GeoJson(all_criteria, name='All criteria met', style_function=lambda x:blue).add_to(m)
-folium.GeoJson(all_criteria_small, name='All criteria met (small)', style_function=lambda x:yellow).add_to(m)
+popup = folium.GeoJsonPopup(fields=["area_ha"])
+
+folium.GeoJson(all_criteria, name='All criteria met', 
+               #popup=popup, 
+               #zoom_on_click=True, 
+               style_function=lambda x:blue).add_to(m)
+folium.GeoJson(all_criteria_small, name='All criteria met (small)', 
+               #popup=popup, 
+               #zoom_on_click=True, 
+               style_function=lambda x:yellow).add_to(m)
 
 folium.LayerControl().add_to(m)
 st_folium(m, width=700, height=500)
