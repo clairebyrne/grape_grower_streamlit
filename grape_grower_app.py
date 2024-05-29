@@ -5,7 +5,7 @@ from rasterio.features import shapes
 import geopandas as gpd
 from shapely.geometry import shape
 import streamlit as st
-from streamlit_folium import st_folium
+from streamlit_folium import st_folium, folium_static
 
 # Define the path to your DTM file and the elevation threshold
 dtm_file_path = r'./data/raw_dtm_merge_10m.tiff'
@@ -38,6 +38,7 @@ min_ideal_asp = st.slider('Select min ideal aspect (degrees)', min_value=0, max_
 max_ideal_asp = st.slider('Select max ideal aspect (degrees)', min_value=0, max_value=360, 
                           value=220, step=1)
 
+min_area = st.slider('Select minimum area (in hectares)', min_value=0.1, max_value=50.1, value=1.0, step=0.5)
 
 ########################################################################################
 # process dtm
@@ -108,68 +109,50 @@ def process_aspect():
     asp_select = gpd.GeoDataFrame(geometry=geometries, crs="EPSG:2180")
     return asp_select
 
+@st.cache_data
+def all_criteria_met(_elev, _slp, _asp, smallest):
+            # intersect all areas that meet selected criteria
+            intersect_all_criteria = _elev.overlay(_slp).overlay(_asp)
+            # calculate area of intersected areas in hectares
+            intersect_all_criteria['area_ha'] = intersect_all_criteria['geometry'].area/10**4
+            # select the areas that meet the defined area criteria into a new geodataframe
+            all_criteria = intersect_all_criteria[intersect_all_criteria['area_ha']>= smallest]
+            # select the areas that do not meet the defined area criteria into a new geodataframe
+            all_criteria_small = intersect_all_criteria[intersect_all_criteria['area_ha']< smallest]
+            return all_criteria, all_criteria_small
+     
 
-# run the processing functions
-dtm_select = process_dtm()
-st.write(f'Processed DTM selection giving {dtm_select.shape[0]} features')
-slp_select = process_slp()
-st.write(f'Processed slope selection giving {slp_select.shape[0]} features')
-asp_select = process_aspect()
-st.write(f'Processed aspect selection giving {asp_select.shape[0]} features')
+if 'run_analysis' not in st.session_state:
+        st.session_state.run_analysis = False
+def click_button():
+            st.session_state.run_analysis = True
 
+st.button('Click to run first analysis', on_click=click_button)
+
+if st.session_state.run_analysis:
+            # run the processing functions
+            dtm_select = process_dtm()
+            st.write(f'Processed DTM selection giving {dtm_select.shape[0]} features')
+            slp_select = process_slp()
+            st.write(f'Processed slope selection giving {slp_select.shape[0]} features')
+            asp_select = process_aspect()
+            st.write(f'Processed aspect selection giving {asp_select.shape[0]} features')
+            all_criteria, all_criteria_small = all_criteria_met(dtm_select, slp_select, asp_select, min_area)
+
+            st.write(f'Ran intersect of all criteria of elevation, slope, aspect and minimum area. {all_criteria.shape[0]} features meet all criteria. Two layers have been added to the map - **All criteria met**, and **All criteria met (small)**.')
 
 #############################################################################
 # Create a Folium map
 #############################################################################
 
-# Set the initial location to the center of the area of interest
 latitude, longitude = 50.9601, 15.9751  # Replace with appropriate values
 m = folium.Map(location=[latitude, longitude], zoom_start=10)
+# criteria met styles
+blue = {'fillColor': '#021076', 'color': '#021076'}
+yellow = {'fillColor': '#eed959', 'color': '#eed959'}
 
-orange = {'fillColor': '#ff9302', 'color': '#ff9302'}
-pink = {'fillColor': '#fc417c', 'color': '#fc417c'}
-green = {'fillColor': '#5dd4a2', 'color': '#5dd4a2'}
-
-col1, col2, col3 = st.columns(3)
-
-with col1:
-    if 'dtm_to_map' not in st.session_state:
-        st.session_state.dtm_to_map = False
-    def click_button():
-        st.session_state.dtm_to_map = True
-
-    st.button('Add DTM to map?', on_click=click_button)
-
-    if st.session_state.dtm_to_map:
-        st.write('Added DTM layer...')
-        folium.GeoJson(dtm_select, name='DTM selection', style_function=lambda x:orange).add_to(m)
-
-with col2:
-    if 'slp_to_map' not in st.session_state:
-        st.session_state.slp_to_map = False
-    def click_button():
-        st.session_state.slp_to_map = True
-
-    st.button('Add Slope to map?', on_click=click_button)
-
-    if st.session_state.slp_to_map:
-        st.write('Added slope layer...')
-        folium.GeoJson(slp_select, name='Slope selection', style_function=lambda x:pink).add_to(m)
-
-with col3:
-    if 'asp_to_map' not in st.session_state:
-        st.session_state.asp_to_map = False
-    def click_button():
-        st.session_state.asp_to_map = True
-
-    st.button('Add Aspect to map?', on_click=click_button)
-
-    if st.session_state.asp_to_map:
-        st.write('Added aspect layer...')
-        folium.GeoJson(asp_select, name='Ideal Aspect', style_function=lambda x:green).add_to(m)
+folium.GeoJson(all_criteria, name='All criteria met', style_function=lambda x:blue).add_to(m)
+folium.GeoJson(all_criteria_small, name='All criteria met (small)', style_function=lambda x:yellow).add_to(m)
 
 folium.LayerControl().add_to(m)
-
-# Display the map in Streamlit
-
 st_folium(m, width=700, height=500)
